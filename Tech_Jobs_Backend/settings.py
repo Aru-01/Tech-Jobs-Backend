@@ -101,7 +101,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
 # CORS Config
-CORS_ALLOW_ALL_ORIGINS = True  # For development. Can be restricted in prod.
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # REST Framework Config
 REST_FRAMEWORK = {
@@ -140,6 +144,8 @@ REST_AUTH = {
     "JWT_AUTH_COOKIE": "tech_jobs_access_token",
     "JWT_AUTH_REFRESH_COOKIE": "tech_jobs_refresh_token",
     "USER_DETAILS_SERIALIZER": "accounts.serializers.UserSerializer",
+    "REGISTER_SERIALIZER": "accounts.serializers.CustomRegisterSerializer",
+    "LOGIN_SERIALIZER": "accounts.serializers.CustomLoginSerializer",
 }
 
 # allauth config
@@ -150,10 +156,11 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = "none"  # For simplicity, can be set to mandatory
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 # Google OAuth setup
 SOCIALACCOUNT_PROVIDERS = {
