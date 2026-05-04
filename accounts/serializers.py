@@ -38,6 +38,18 @@ class CustomRegisterSerializer(RegisterSerializer):
 
 
 class CustomLoginSerializer(LoginSerializer):
-    # We don't need to override much, dj-rest-auth handles email-only via settings
-    pass
+    username = None
+    email = serializers.EmailField(required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "username" in self.fields:
+            del self.fields["username"]
+
+    def validate(self, attrs):
+        # Map email to username for dj-rest-auth internal authentication logic
+        if "email" in attrs:
+            attrs["username"] = attrs.get("email")
+        return super().validate(attrs)
+
 

@@ -48,7 +48,7 @@ class MyJobsView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        return Job.objects.filter(created_by=self.request.user)
+        return Job.objects.select_related("company", "created_by").filter(created_by=self.request.user)
 
 
 class MyCompaniesView(generics.ListAPIView):
@@ -64,4 +64,4 @@ class MyCompaniesView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        return Company.objects.filter(created_by=self.request.user)
+        return Company.objects.select_related("created_by").filter(created_by=self.request.user)

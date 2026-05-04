@@ -25,7 +25,7 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
-    queryset = Company.objects.all()
+    queryset = Company.objects.select_related("created_by").all()
     serializer_class = CompanySerializer
     permission_classes = [IsAdminUserOrReadOnly, IsOwnerOrAdmin]
     filter_backends = [

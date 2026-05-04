@@ -25,7 +25,7 @@ class IsAuthorOrAdmin(permissions.BasePermission):
 
 
 class JobViewSet(viewsets.ModelViewSet):
-    queryset = Job.objects.all()
+    queryset = Job.objects.select_related("company", "created_by").all()
     serializer_class = JobSerializer
     permission_classes = [IsRecruiterOrAdminOrReadOnly, IsAuthorOrAdmin]
     filter_backends = [
