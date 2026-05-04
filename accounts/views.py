@@ -10,6 +10,25 @@ from companies.models import Company
 from companies.serializers import CompanySerializer
 
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
+class DashboardStatsView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        active_jobs = Job.objects.count()
+        companies_hiring = Company.objects.count()
+        # Mocking these for now as per design
+        return Response({
+            "active_jobs": active_jobs,
+            "companies_hiring": companies_hiring,
+            "successful_hires": "98K+",
+            "avg_time_to_hire": "18 days"
+        })
+
+
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     callback_url = "http://localhost:3000/api/auth/callback/google"  # Update with your frontend URL
