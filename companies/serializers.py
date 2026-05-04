@@ -5,5 +5,11 @@ from companies.models import Company
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = "__all__"
+        fields = [
+            "id", "company_name", "logo", "logo_url", 
+            "banner_image", "banner_image_url", "website", 
+            "location", "industry", "short_description", 
+            "full_description", "is_verified", "created_by", 
+            "created_at", "updated_at"
+        ]
         read_only_fields = ("id", "created_by", "created_at", "updated_at")

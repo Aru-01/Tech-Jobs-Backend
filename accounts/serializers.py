@@ -9,7 +9,7 @@ from dj_rest_auth.serializers import LoginSerializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "full_name", "email", "profile_image", "role", "created_at")
+        fields = ("id", "full_name", "email", "profile_image", "profile_image_url", "role", "created_at")
         read_only_fields = ("id", "created_at")
 
 

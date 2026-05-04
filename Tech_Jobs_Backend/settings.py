@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "accounts",
     "companies",
     "jobs",
+    "dashboard",
 ]
 
 MIDDLEWARE = [
@@ -95,9 +96,13 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 STATIC_URL = "static/"
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# Media files
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -157,7 +162,7 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 
-ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
@@ -166,6 +171,11 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 # Google OAuth setup
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
+        "APP": {
+            "client_id": config("GOOGLE_CLIENT_ID"),
+            "secret": config("GOOGLE_CLIENT_SECRET"),
+            "key": "",
+        },
         "SCOPE": [
             "profile",
             "email",

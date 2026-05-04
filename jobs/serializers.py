@@ -5,8 +5,13 @@ from .models import Job
 class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
-        fields = '__all__'
-        read_only_fields = ('id', 'created_by', 'created_at', 'updated_at')
+        fields = [
+            'id', 'title', 'short_description', 'full_description', 
+            'salary', 'location', 'job_type', 'experience_level', 
+            'deadline', 'tech_stack', 'banner_image', 'banner_image_url', 
+            'company', 'created_by', 'created_at', 'updated_at', 'is_active'
+        ]
+        read_only_fields = ('id', 'created_by', 'created_at', 'updated_at', 'is_active')
 
     def validate_salary(self, value):
         if value < 0:

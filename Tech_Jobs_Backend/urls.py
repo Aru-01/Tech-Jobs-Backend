@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from accounts.views import MyJobsView, MyCompaniesView, DashboardStatsView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -20,12 +21,12 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("accounts/", include("allauth.urls")),
     path("api/auth/", include("accounts.urls")),
     path("api/companies/", include("companies.urls")),
     path("api/jobs/", include("jobs.urls")),
-    path("api/my/jobs/", MyJobsView.as_view(), name="my-jobs"),
-    path("api/my/companies/", MyCompaniesView.as_view(), name="my-companies"),
-    path("api/dashboard/stats/", DashboardStatsView.as_view(), name="dashboard-stats"),
+    path("api/dashboard/", include("dashboard.urls")),
+    
     # Swagger urls
     path(
         "swagger<format>/", schema_view.without_ui(cache_timeout=0), name="schema-json"
@@ -37,3 +38,6 @@ urlpatterns = [
     ),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

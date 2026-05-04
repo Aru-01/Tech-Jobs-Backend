@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from companies.models import Company
 
 class Job(models.Model):
@@ -27,6 +28,7 @@ class Job(models.Model):
     experience_level = models.CharField(max_length=50, choices=EXPERIENCE_LEVEL_CHOICES)
     deadline = models.DateField()
     tech_stack = models.JSONField(default=list, help_text="List of technologies (e.g. ['python', 'django'])")
+    banner_image = models.ImageField(upload_to="jobs/banners/", blank=True, null=True)
     banner_image_url = models.URLField(max_length=500, blank=True, null=True)
     
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='jobs')
@@ -37,6 +39,11 @@ class Job(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+    @property
+    def is_active(self):
+        return self.deadline >= timezone.now().date()
 
     def __str__(self):
         return self.title
