@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,11 +11,14 @@ SECRET_KEY = config(
     default="django-insecure-1#-*622c0rc@i@y90@cj8qgg_1rg5dygle-)8yk7p7$n+!yk-r",
 )
 
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = config("DEBUG", cast=bool)
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1,localhost").split(",")
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS", default="127.0.0.1,localhost,.vercel.app"
+).split(",")
 
 INSTALLED_APPS = [
+    "whitenoise.runserver_nostatic",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,6 +50,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -72,15 +77,40 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "Tech_Jobs_Backend.wsgi.application"
+WSGI_APPLICATION = "Tech_Jobs_Backend.wsgi.app"
 
 # Database config
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+# supabase DB
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("database"),
+        "USER": config("user"),
+        "PASSWORD": config("password"),
+        "HOST": config("host"),
+        "PORT": config("port"),
     }
 }
+
+
+cloudinary.config(
+    cloud_name=config("cloud_name"),
+    api_key=config("api_key"),
+    api_secret=config(
+        "api_secret"
+    ),  # Click 'View API Keys' above to copy your API secret
+    secure=True,
+)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -110,12 +140,25 @@ AUTH_USER_MODEL = "accounts.User"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://tech-jobs-aru.vercel.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 # REST Framework Config
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
@@ -131,6 +174,11 @@ REST_FRAMEWORK = {
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
+    ],
+    "DEFAULT_PARSER_CLASSES": [
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
     ],
 }
 
@@ -167,6 +215,12 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_VERIFICATION = "none"
+
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.CustomSocialAccountAdapter"
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_REQUIRED
+SOCIALACCOUNT_EMAIL_VERIFICATION = ACCOUNT_EMAIL_VERIFICATION
+SOCIALACCOUNT_QUERY_EMAIL = True
 
 # Google OAuth setup
 SOCIALACCOUNT_PROVIDERS = {

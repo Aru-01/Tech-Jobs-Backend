@@ -93,6 +93,9 @@ class MyCompaniesView(generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
+        user = self.request.user
+        if user.role == 'admin':
+            return Company.objects.select_related("created_by").all()
         return Company.objects.select_related("created_by").filter(
-            created_by=self.request.user
+            created_by=user
         )

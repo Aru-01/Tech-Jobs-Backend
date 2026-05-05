@@ -4,6 +4,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from accounts.manager import UserManager
+from cloudinary.models import CloudinaryField
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -15,7 +16,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
-    profile_image = models.ImageField(upload_to="profiles/", blank=True, null=True)
+    profile_image = CloudinaryField("profiles/", blank=True, null=True)
     profile_image_url = models.URLField(max_length=500, blank=True, null=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="job_seeker")
     created_at = models.DateTimeField(auto_now_add=True)

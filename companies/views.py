@@ -1,4 +1,6 @@
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -25,7 +27,6 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
-    queryset = Company.objects.select_related("created_by").all()
     serializer_class = CompanySerializer
     permission_classes = [IsAdminUserOrReadOnly, IsOwnerOrAdmin]
     filter_backends = [
@@ -33,6 +34,21 @@ class CompanyViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         filters.OrderingFilter,
     ]
+
+    queryset = Company.objects.select_related("created_by").all()
+
+    @swagger_auto_schema(
+        method='post',
+        operation_description="Verify a company. Only Admins can verify.",
+        responses={200: openapi.Response("Company verified", CompanySerializer)},
+        tags=["Companies"],
+    )
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAdminUser])
+    def verify(self, request, pk=None):
+        company = self.get_object()
+        company.is_verified = True
+        company.save()
+        return Response(CompanySerializer(company).data)
     search_fields = ["company_name", "industry", "location"]
     # Ordering setup
     ordering_fields = ["created_at", "company_name"]

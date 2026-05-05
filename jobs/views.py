@@ -25,7 +25,6 @@ class IsAuthorOrAdmin(permissions.BasePermission):
 
 
 class JobViewSet(viewsets.ModelViewSet):
-    queryset = Job.objects.select_related("company", "created_by").all()
     serializer_class = JobSerializer
     permission_classes = [IsRecruiterOrAdminOrReadOnly, IsAuthorOrAdmin]
     filter_backends = [
@@ -34,8 +33,15 @@ class JobViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter,
     ]
 
+    def get_queryset(self):
+        user = self.request.user
+        # For dashboard/management: recruiters only see their own
+        if user.is_authenticated and user.role == 'recruiter' and 'manage' in self.request.path:
+            return Job.objects.filter(created_by=user).select_related("company", "created_by")
+        return Job.objects.select_related("company", "created_by").all()
+
     # Filter setup
-    filterset_fields = ["job_type", "location", "experience_level"]
+    filterset_fields = ["job_type", "location", "experience_level", "company"]
 
     # Search setup
     search_fields = ["title", "location", "company__company_name"]

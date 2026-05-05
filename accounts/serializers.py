@@ -1,3 +1,4 @@
+from django.db.models import ImageField
 from rest_framework import serializers
 from accounts.models import User
 
@@ -7,9 +8,21 @@ from dj_rest_auth.serializers import LoginSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(
+        required=False, allow_null=True, allow_empty_file=True
+    )
+
     class Meta:
         model = User
-        fields = ("id", "full_name", "email", "profile_image", "profile_image_url", "role", "created_at")
+        fields = (
+            "id",
+            "full_name",
+            "email",
+            "profile_image",
+            "profile_image_url",
+            "role",
+            "created_at",
+        )
         read_only_fields = ("id", "created_at")
 
 
@@ -51,5 +64,3 @@ class CustomLoginSerializer(LoginSerializer):
         if "email" in attrs:
             attrs["username"] = attrs.get("email")
         return super().validate(attrs)
-
-
